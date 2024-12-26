@@ -1,16 +1,12 @@
 package roomescape.auth;
 
 import jakarta.servlet.http.Cookie;
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import roomescape.member.Member;
 
 @RestController
@@ -29,17 +25,17 @@ public class AuthController {
 
     @PostMapping("/login")
     public ResponseEntity login(
-            @RequestBody LoginRequest memberLoginRequest,
+            @RequestBody LoginRequestDto memberLoginRequest,
             HttpServletResponse response
     ) {
-        Member member = authService.login(memberLoginRequest);
+        Member member = authService.loginByEmailAndPassword(memberLoginRequest);
 
         String tokenValue = tokenGenerator.generateAccessToken(member);
 
         Cookie cookie = new Cookie("token", tokenValue);
         cookie.setHttpOnly(true);
         cookie.setPath("/");
-        cookie.setMaxAge(60);
+        cookie.setMaxAge(60 * 5);
         cookie.setSecure(true);
 
         response.addCookie(cookie);
@@ -48,36 +44,25 @@ public class AuthController {
     }
 
     @GetMapping("/login/check")
-    public ResponseEntity loginCheck(HttpServletRequest request) {
-        Cookie[] cookies = request.getCookies();
+    public ResponseEntity loginCheck(
+            @CookieValue("token") String token
+    ) {
+        AuthCredential tokenInfo = tokenGenerator.parseAccessToken(token);
 
-        String token = extractTokenFromCookie(cookies);
-
-        TokenInfo tokenInfo = tokenGenerator.decodeAccessToken(token);
-
-        Member member = authService.loginCheck(tokenInfo.id());
-        String memberName = member.getName();
-
-        if (!tokenInfo.name().equals(memberName)) {
-            throw new RuntimeException("Invalid access token");
-        }
+       authService.loginCheck(tokenInfo.id(), tokenInfo);
 
         return ResponseEntity
                 .ok()
-                .body(new LoginCheckResponse(memberName));
+                .body(new LoginCheckResponseDto(tokenInfo.name()));
     }
 
-    private String extractTokenFromCookie(Cookie[] cookies) {
-        try {
-            for (Cookie cookie : cookies) {
-                if (cookie.getName().equals("token")) {
-                    return cookie.getValue();
-                }
-            }
-
-            return "";
-        } catch (NullPointerException e) {
-            throw new RuntimeException("abc");
-        }
+    @PostMapping("/logout")
+    public ResponseEntity logout(HttpServletResponse response) {
+        Cookie cookie = new Cookie("token", "");
+        cookie.setHttpOnly(true);
+        cookie.setPath("/");
+        cookie.setMaxAge(0);
+        response.addCookie(cookie);
+        return ResponseEntity.ok().build();
     }
 }
