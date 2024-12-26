@@ -1,6 +1,6 @@
 package roomescape.auth;
 
-public record TokenInfo(
+public record AuthCredential(
         Long id,
         String name,
         String role
