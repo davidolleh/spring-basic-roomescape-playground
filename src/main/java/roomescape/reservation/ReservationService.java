@@ -27,4 +27,10 @@ public class ReservationService {
                 .map(it -> new ReservationResponse(it.getId(), it.getName(), it.getTheme().getName(), it.getDate(), it.getTime().getValue()))
                 .toList();
     }
+
+    public List<ReservationResponse> findByName(String name) {
+        return reservationDao.findByName(name).stream()
+                .map(it -> new ReservationResponse(it.getId(), it.getName(), it.getTheme().getName(), it.getDate(), it.getTime().getValue()))
+                .toList();
+    }
 }
