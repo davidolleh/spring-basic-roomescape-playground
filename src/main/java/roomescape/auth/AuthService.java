@@ -7,7 +7,7 @@ import roomescape.member.MemberDao;
 
 @Service
 public class AuthService {
-    private MemberDao memberDao;
+    private final MemberDao memberDao;
 
     public AuthService(@Autowired MemberDao memberDao) {
         this.memberDao = memberDao;

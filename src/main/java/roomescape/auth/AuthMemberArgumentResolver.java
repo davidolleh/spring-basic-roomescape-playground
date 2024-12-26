@@ -14,7 +14,8 @@ import java.util.Arrays;
 
 @Component
 public class AuthMemberArgumentResolver implements HandlerMethodArgumentResolver {
-    private TokenGenerator tokenGenerator;
+    private final TokenGenerator tokenGenerator;
+    private static final String TOKEN_VALUE = "token";
 
     public AuthMemberArgumentResolver(@Autowired TokenGenerator tokenGenerator) {
         this.tokenGenerator = tokenGenerator;
@@ -38,7 +39,7 @@ public class AuthMemberArgumentResolver implements HandlerMethodArgumentResolver
     private String extractTokenFromRequest(ServletWebRequest webRequest) {
         Cookie[] cookies = webRequest.getRequest().getCookies();
         return Arrays.stream(cookies)
-                .filter(cookie -> cookie.getName().equals("token"))
+                .filter(cookie -> cookie.getName().equals(TOKEN_VALUE))
                 .findFirst()
                 .map(Cookie::getValue)
                 .orElseThrow(() -> new IllegalArgumentException("로그인이 필요합니다."));
