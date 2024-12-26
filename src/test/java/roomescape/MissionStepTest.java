@@ -61,14 +61,14 @@ public class MissionStepTest {
     }
 
     @Nested
-    class 이단계_클라스 {
+    class 토큰_생성_포함_테스트 {
         @Autowired AuthService authService;
 
         @Test
         void 이단계() {
             LoginRequestDto loginRequestDto = new LoginRequestDto("admin@email.com", "password");
             Member member = authService.loginByEmailAndPassword(loginRequestDto);
-            String token = tokenGenerator.generateAccessToken(member);  // 일단계에서 토큰을 추출하는 로직을 메서드로 따로 만들어서 활용하세요.
+            String token = tokenGenerator.generateAccessToken(member);
 
             Map<String, String> params = new HashMap<>();
             params.put("date", "2024-03-01");
@@ -98,6 +98,29 @@ public class MissionStepTest {
 
             assertThat(adminResponse.statusCode()).isEqualTo(201);
             assertThat(adminResponse.as(ReservationResponse.class).getName()).isEqualTo("브라운");
+        }
+
+        @Test
+        void 삼단계() {
+            LoginRequestDto brwonLoginRequestDto = new LoginRequestDto("brown@email.com", "password");
+            Member brownMember = authService.loginByEmailAndPassword(brwonLoginRequestDto);
+            String brownToken = tokenGenerator.generateAccessToken(brownMember);
+
+            RestAssured.given().log().all()
+                    .cookie("token", brownToken)
+                    .get("/admin")
+                    .then().log().all()
+                    .statusCode(401);
+
+            LoginRequestDto adminLoginRequestDto = new LoginRequestDto("admin@email.com", "password");
+            Member adminMember = authService.loginByEmailAndPassword(adminLoginRequestDto);
+            String adminToken = tokenGenerator.generateAccessToken(adminMember);
+
+            RestAssured.given().log().all()
+                    .cookie("token", adminToken)
+                    .get("/admin")
+                    .then().log().all()
+                    .statusCode(200);
         }
     }
 }
