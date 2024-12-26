@@ -2,8 +2,6 @@ package roomescape.auth;
 
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -11,7 +9,6 @@ import roomescape.member.Member;
 
 @RestController
 public class AuthController {
-    private static final Logger log = LoggerFactory.getLogger(AuthController.class);
     private AuthService authService;
     private TokenGenerator tokenGenerator;
 
