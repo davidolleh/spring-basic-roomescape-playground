@@ -1,6 +1,6 @@
 package roomescape.auth;
 
-public record LoginCheckResponse(
+public record LoginCheckResponseDto(
         String name
 ) {
 }
