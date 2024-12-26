@@ -14,9 +14,10 @@ public class TokenGenerator {
     private static final Logger log = LoggerFactory.getLogger(TokenGenerator.class);
     @Value("${roomescape.auth.jwt.secret}")
     private String secretKey;
+    private static final String USER_NAME = "name";
+    private static final String USER_ROLE = "role";
 
     public String generateAccessToken(Member member) {
-
         Claims customClaims = createClaims(member);
 
         String token = Jwts.builder()
@@ -28,26 +29,26 @@ public class TokenGenerator {
         return token;
     }
 
-    public TokenInfo decodeAccessToken(String token) {
+    public AuthCredential parseAccessToken(String token) {
         Claims claims = Jwts.parserBuilder()
                 .setSigningKey(Keys.hmacShaKeyFor(secretKey.getBytes()))
                 .build()
                 .parseClaimsJws(token)
                 .getBody();
 
-        log.warn(claims.getSubject());
+        log.warn("Token id: {}", claims.getSubject());
         Long id = Long.valueOf(claims.getSubject());
-        String name =  claims.get("name", String.class);
-        String role = claims.get("role", String.class);
+        String name =  claims.get(USER_NAME, String.class);
+        String role = claims.get(USER_ROLE, String.class);
 
-        return new TokenInfo(id, name, role);
+        return new AuthCredential(id, name, role);
     }
 
     private Claims createClaims(Member member) {
         Claims customClaims = Jwts.claims();
         customClaims.setSubject(member.getId().toString());
-        customClaims.put("name", member.getName());
-        customClaims.put("role", member.getRole());
+        customClaims.put(USER_NAME, member.getName());
+        customClaims.put(USER_ROLE, member.getRole());
         return customClaims;
     }
 }
