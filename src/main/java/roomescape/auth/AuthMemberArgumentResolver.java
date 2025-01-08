@@ -14,8 +14,8 @@ import java.util.Arrays;
 
 @Component
 public class AuthMemberArgumentResolver implements HandlerMethodArgumentResolver {
-    private final TokenGenerator tokenGenerator;
     private static final String TOKEN_VALUE = "token";
+    private final TokenGenerator tokenGenerator;
 
     public AuthMemberArgumentResolver(@Autowired TokenGenerator tokenGenerator) {
         this.tokenGenerator = tokenGenerator;
@@ -24,9 +24,9 @@ public class AuthMemberArgumentResolver implements HandlerMethodArgumentResolver
     @Override
     public boolean supportsParameter(MethodParameter parameter) {
         boolean isAuthenticationAnnotation = parameter.hasParameterAnnotation(Authentication.class);
-        boolean isLoginDto = parameter.getParameterType().equals(AuthCredential.class);
+        boolean isAuthCredential = parameter.getParameterType().equals(AuthCredential.class);
 
-        return isAuthenticationAnnotation && isLoginDto;
+        return isAuthenticationAnnotation && isAuthCredential;
     }
 
     @Override

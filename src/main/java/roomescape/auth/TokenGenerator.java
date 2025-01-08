@@ -3,19 +3,22 @@ package roomescape.auth;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
+import io.jsonwebtoken.security.SignatureException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+import roomescape.exception.InvalidTokenFormatException;
 import roomescape.member.Member;
 
 @Component
 public class TokenGenerator {
     private static final Logger log = LoggerFactory.getLogger(TokenGenerator.class);
-    @Value("${roomescape.auth.jwt.secret}")
-    private String secretKey;
     private static final String USER_NAME = "name";
     private static final String USER_ROLE = "role";
+
+    @Value("${roomescape.auth.jwt.secret}")
+    private String secretKey;
 
     public String generateAccessToken(Member member) {
         Claims customClaims = createClaims(member);
@@ -25,23 +28,25 @@ public class TokenGenerator {
                 .signWith(Keys.hmacShaKeyFor(secretKey.getBytes()))
                 .compact();
 
-        log.warn("Generated access token: {}", token);
         return token;
     }
 
     public AuthCredential parseAccessToken(String token) {
-        Claims claims = Jwts.parserBuilder()
-                .setSigningKey(Keys.hmacShaKeyFor(secretKey.getBytes()))
-                .build()
-                .parseClaimsJws(token)
-                .getBody();
+        try {
+            Claims claims = Jwts.parserBuilder()
+                    .setSigningKey(Keys.hmacShaKeyFor(secretKey.getBytes()))
+                    .build()
+                    .parseClaimsJws(token)
+                    .getBody();
 
-        log.warn("Token id: {}", claims.getSubject());
-        Long id = Long.valueOf(claims.getSubject());
-        String name =  claims.get(USER_NAME, String.class);
-        String role = claims.get(USER_ROLE, String.class);
+            Long id = Long.valueOf(claims.getSubject());
+            String name =  claims.get(USER_NAME, String.class);
+            String role = claims.get(USER_ROLE, String.class);
 
-        return new AuthCredential(id, name, role);
+            return new AuthCredential(id, name, role);
+        } catch (SignatureException e) {
+            throw new InvalidTokenFormatException("Invalid JWT signature");
+        }
     }
 
     private Claims createClaims(Member member) {

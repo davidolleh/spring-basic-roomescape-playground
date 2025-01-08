@@ -10,10 +10,9 @@ import java.util.List;
 
 @Configuration
 public class AuthConfig implements WebMvcConfigurer {
+    private static final String ADMIN_PATTERN = "/admin";
     private final AuthMemberArgumentResolver authMemberArgumentResolver;
     private final AuthInterceptor authInterceptor;
-    private static final String ADMIN_PATTERN = "/admin";
-
 
     public AuthConfig(
             @Autowired AuthMemberArgumentResolver authMemberArgumentResolver,

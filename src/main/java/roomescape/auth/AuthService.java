@@ -2,6 +2,7 @@ package roomescape.auth;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import roomescape.exception.InvalidCredentialsException;
 import roomescape.member.Member;
 import roomescape.member.MemberDao;
 
@@ -22,8 +23,7 @@ public class AuthService {
         String memberName = member.getName();
 
         if (!tokenInfo.name().equals(memberName)) {
-            // TODO:: 예외처리 구체적으로 하기
-            throw new RuntimeException("Invalid access token");
+            throw new InvalidCredentialsException("Invalid access token");
         }
     }
 }

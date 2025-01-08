@@ -9,8 +9,8 @@ import roomescape.member.Member;
 
 @RestController
 public class AuthController {
-    private AuthService authService;
-    private TokenGenerator tokenGenerator;
+    private final AuthService authService;
+    private final TokenGenerator tokenGenerator;
 
     public AuthController(
             @Autowired  AuthService authService,
