@@ -12,4 +12,5 @@ spring:
 roomescape:
   auth:
     jwt:
+#      secret: ${sKey}
       secret: Yn2kjibddFAWtnPJ2AFlL8WXmohJMCvigQggaEypa5E
