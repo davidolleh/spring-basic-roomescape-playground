@@ -16,8 +16,12 @@ token관련 생길 수 있는 예외
 - Token이 만료된 경우: InvalidCredentialsException
 - 로그인 정보가 틀렷을 경우: InvalidCredentialsException
 - 유효하지 않은 토큰의 경우 (잘못된 형식): InvalidTokenFormatException
-- 
+
 ## 3단계: 어드민 페이지 진입은 admin권한이 있는 사람만 할 수 있도록 제한
 
 ### 고려한점:
-3. Interceptor vs Filter vs ArgumentResolver
+3. Interceptor vs Filter
+Filter: 공통된 보안 및 인증/인가 관련 작업
+Interceptor: 세부적인 보안 및 인증/인가 공통 작업
+인가와 관련된 스프링 기술(어노테이션으로 API 구분, 핸들러 정보 접근, 스프링 예외 처리 기능)을 활용하기 위해 인가를 Interceptor에서 처리
+Filter로는 전역 인증 처리
