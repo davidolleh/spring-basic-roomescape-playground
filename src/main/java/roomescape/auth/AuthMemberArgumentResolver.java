@@ -37,11 +37,16 @@ public class AuthMemberArgumentResolver implements HandlerMethodArgumentResolver
     }
 
     private String extractTokenFromRequest(ServletWebRequest webRequest) {
-        Cookie[] cookies = webRequest.getRequest().getCookies();
-        return Arrays.stream(cookies)
-                .filter(cookie -> cookie.getName().equals(TOKEN_VALUE))
-                .findFirst()
-                .map(Cookie::getValue)
-                .orElseThrow(() -> new IllegalArgumentException("로그인이 필요합니다."));
+        try {
+            Cookie[] cookies = webRequest.getRequest().getCookies();
+            return Arrays.stream(cookies)
+                    .filter(cookie -> cookie.getName().equals(TOKEN_VALUE))
+                    .findFirst()
+                    .map(Cookie::getValue)
+                    .orElseThrow(() -> new IllegalArgumentException("로그인이 필요합니다."));
+        } catch (NullPointerException e) {
+            throw new IllegalArgumentException("로그인이 필요합니다.");
+        }
+
     }
 }
